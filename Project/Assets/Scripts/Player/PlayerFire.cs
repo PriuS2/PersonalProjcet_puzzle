@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Enemy;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -27,6 +28,8 @@ public class PlayerFire : MonoBehaviour
     private bool _needZoom;
     private bool _zoomIn;
 
+    public int fire1Damage = 5;
+
     private void Start()
     {
         _cam = Camera.main;
@@ -49,11 +52,19 @@ public class PlayerFire : MonoBehaviour
 
     private void Update()
     {
+        if (GameManager.gm.gameState != GameManager.GameState.Run)
+        {
+            return;
+        }
+        
         if (Input.GetButtonDown("Fire1"))
         {
             RaycastHit hit;
             if (Physics.Raycast(_cam.transform.position, _cam.transform.forward, out hit, 1000))
             {
+
+                // if(hit.transform.gameObject.layer)
+                
                 //Draw Debug Line
                 StartCoroutine(DrawLine(.4f));
                 var hitPoint = hit.point;
@@ -62,7 +73,15 @@ public class PlayerFire : MonoBehaviour
                 //
                 bulletImpact.transform.position = hitPoint;
                 bulletImpact.transform.LookAt(hitPoint + hit.normal, hit.normal);
-                _bulletParticle.Play();
+
+                if (hit.transform.gameObject.layer == 9)
+                {
+                    hit.transform.GetComponent<EnemyFSM>().OnDamaged(fire1Damage);
+                }
+                else
+                {
+                    _bulletParticle.Play();
+                }
             }
         }
 

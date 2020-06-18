@@ -24,10 +24,11 @@ public class PlayerMovement : MonoBehaviour
     public int jumpStack;
 
     public Slider slider;
-
+    public Image hitImage;
 
     public int maxHp = 100;
     private int _currentHp;
+
 
     // Start is called before the first frame update
     private void Start()
@@ -39,6 +40,8 @@ public class PlayerMovement : MonoBehaviour
 
         _currentHp = maxHp;
         UpdateHpSlide();
+
+        GameManager.gm.playerMovement = this;
     }
 
     // Update is called once per frame
@@ -120,11 +123,59 @@ public class PlayerMovement : MonoBehaviour
     {
         _currentHp -= damage;
         UpdateHpSlide();
+        if (_currentHp <= 0)
+        {
+            _currentHp = 0;
+            GameManager.gm.PlayerDie();
+        }
+
+        StartCoroutine(HitEffect());
+
     }
+
 
     private void UpdateHpSlide()
     {
         var check = _currentHp > 0;
         slider.value = check ? _currentHp / (float) maxHp : 0;
+    }
+
+
+    private float _targetAlpha = .3f;
+    IEnumerator HitEffect()
+    {
+        float timeStack = 0;
+        _targetAlpha = .3f;
+        while (true)
+        {
+            ChangeAlpha();
+            timeStack += Time.deltaTime;
+            if (timeStack >= .5f)
+            {
+                break;
+            }
+            yield return null;
+        }
+        
+        timeStack = 0;
+        _targetAlpha = 0f;
+        while (true)
+        {
+            ChangeAlpha();
+            timeStack += Time.deltaTime;
+            if (timeStack >= .5f)
+            {
+                break;
+            }
+            yield return null;
+        }
+    }
+
+    private void ChangeAlpha()
+    {
+        var currentAlpah = hitImage.color.a;
+        var newAlpah = Mathf.Lerp(currentAlpah, _targetAlpha, Time.deltaTime * 10);
+        hitImage.color = new Color(1,0,0,newAlpah);
+        
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Serialization;
+using VolumetricLines;
 using Random = UnityEngine.Random;
 
 namespace Puzzle
@@ -15,19 +16,21 @@ namespace Puzzle
         private float _RemainLaserDistance;
         
         public GameObject laserPrefab;
-        private GameObject[] _lasers;
+        private VolumetricLineBehavior[] _lasers;
 
         public Transform emitPoint;
         private Vector3 _reflectionStartPosition;
         private Vector3 _laserDirection;
+
+        public bool drawDebugLine;
         
         private void Start()
         {
-            _lasers = new GameObject[maxReflectionNum];
+            _lasers = new VolumetricLineBehavior[maxReflectionNum];
             for (int i = 0; i < maxReflectionNum; i++)
             {
                 var temp = Instantiate(laserPrefab, transform);
-                _lasers[i] = temp;
+                _lasers[i] = temp.GetComponent<VolumetricLineBehavior>();
                 temp.SetActive(false);
             }
             
@@ -36,28 +39,16 @@ namespace Puzzle
 
         private void Update()
         {
-            // RaycastHit hit;
-            // if (Physics.Raycast(_cam.transform.position, _cam.transform.forward, out hit, 1000))
-            // {
-            //     //Draw Debug Line
-            //     StartCoroutine(DrawLine(.4f));
-            //     var hitPoint = hit.point;
-            //
-            //     //var impact = Instantiate(bulletImpact, hitPoint, Quaternion.identity);
-            //     //
-            //     bulletImpact.transform.position = hitPoint;
-            //     bulletImpact.transform.LookAt(hitPoint + hit.normal, hit.normal);
-            //     _bulletParticle.Play();
-            // }
-            _currentReflectionNum = -1;
+            _currentReflectionNum = 0;
             _reflectionStartPosition = emitPoint.position;
             _laserDirection = emitPoint.forward;
             var newDirection = _laserDirection;
             _RemainLaserDistance = maxLaserDistance;
 
-
-            //StartCoroutine(DebugLine(5, new Vector3(0, 0, 0), Vector3.up, 1000));
-
+            foreach (var laser in _lasers)
+            {
+                laser.gameObject.SetActive(false);
+            }
 
             while (true)
             {
@@ -65,24 +56,27 @@ namespace Puzzle
                 if (Physics.Raycast(_reflectionStartPosition, newDirection, out hit, _RemainLaserDistance))
                 {
                     //Debug
-                    Debug.DrawRay(_reflectionStartPosition, newDirection * hit.distance, Color.red);
-                    Debug.DrawRay(_reflectionStartPosition + (newDirection * hit.distance),
-                        newDirection * _RemainLaserDistance, Color.green);
-                    Debug.DrawRay(hit.point, Vector3.up + Vector3.right, Color.cyan);
-                    Debug.DrawRay(hit.point, Vector3.right + Vector3.forward, Color.cyan);
-                    Debug.DrawRay(hit.point, Vector3.forward + Vector3.up, Color.cyan);
-                    
-                    // 맞은 지점 hit.point
-                    // 거리 hit.distance
-                    // hit.normal
+                    if (drawDebugLine)
+                    {
+                        Debug.DrawRay(_reflectionStartPosition, newDirection * hit.distance, Color.green);
+                        // Debug.DrawRay(_reflectionStartPosition + (newDirection * hit.distance),
+                        //     newDirection * _RemainLaserDistance, Color.green);
+                        Debug.DrawRay(hit.point, Vector3.up + Vector3.right, Color.cyan);
+                        Debug.DrawRay(hit.point, Vector3.right + Vector3.forward, Color.cyan);
+                        Debug.DrawRay(hit.point, Vector3.forward + Vector3.up, Color.cyan);
+                    }
 
+                    DrawLaser(_lasers[_currentReflectionNum], _reflectionStartPosition, newDirection, hit.distance);
+                    
                     _RemainLaserDistance -= hit.distance;
                     _reflectionStartPosition = hit.point;
                     newDirection = Vector3.Reflect(newDirection, hit.normal);
-                    print(newDirection);
                 }
                 else
                 {
+                    if(drawDebugLine) Debug.DrawRay(_reflectionStartPosition, newDirection * _RemainLaserDistance, Color.red);
+                    DrawLaser(_lasers[_currentReflectionNum], _reflectionStartPosition, newDirection, _RemainLaserDistance);
+
                     break;
                 }
                 
@@ -92,10 +86,18 @@ namespace Puzzle
                     break;
                 }
             }
+            
         }
-        
-        
-        
+
+
+        private void DrawLaser(VolumetricLineBehavior laser, Vector3 start, Vector3 direction, float length)
+        {
+            _lasers[_currentReflectionNum].gameObject.SetActive(true);
+            _lasers[_currentReflectionNum].transform.rotation = Quaternion.identity;
+            _lasers[_currentReflectionNum].StartPos = start - transform.position;
+            _lasers[_currentReflectionNum].EndPos = start + (direction * length) - transform.position;
+            //_lasers[_currentReflectionNum].LineColor = Color.green;
+        }
         
     }
 }
