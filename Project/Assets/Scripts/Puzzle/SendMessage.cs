@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Puzzle;
 using UnityEngine;
 
 public class SendMessage : MonoBehaviour
@@ -23,7 +24,8 @@ public class SendMessage : MonoBehaviour
     {
         if (sendTo & reactType == ReactType.CollisionHit)
         {
-            sendTo.SendMessage(methodName, true);
+            MessageState ms = new MessageState {state = true, owner = transform};
+            sendTo.SendMessage(methodName, ms);
             _state = true;
         }
     }
@@ -32,7 +34,8 @@ public class SendMessage : MonoBehaviour
     {
         if (sendTo & reactType == ReactType.CollisionHit)
         {
-            sendTo.SendMessage(methodName, false);
+            MessageState ms = new MessageState {state = false, owner = transform};
+            sendTo.SendMessage(methodName, ms);
             _state = false;
         }
     }
@@ -41,7 +44,8 @@ public class SendMessage : MonoBehaviour
     {
         if (sendTo& reactType == ReactType.TriggerHit)
         {
-            sendTo.SendMessage(methodName, true);
+            MessageState ms = new MessageState {state = true, owner = transform};
+            sendTo.SendMessage(methodName, ms);
             _state = true;
         }
     }
@@ -50,14 +54,15 @@ public class SendMessage : MonoBehaviour
     {
         if (sendTo& reactType == ReactType.TriggerHit)
         {
-            sendTo.SendMessage("ReceiveMessage", false);
+            MessageState ms = new MessageState {state = false, owner = transform};
+            sendTo.SendMessage("ReceiveMessage", ms);
             _state = false;
         }
     }
 
-    public void ReceiveMessage(bool state)
+    public void ReceiveMessage(MessageState state)
     {
-        _state = state;
+        _state = state.state;
         if (sendTo)
         {
             sendTo.SendMessage("ReceiveMessage", state);

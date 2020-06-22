@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Puzzle;
 using UnityEngine;
 
 public class Test_ReceiveMessage : MonoBehaviour
 {
     public GameObject light;
-    public void ReceiveMessage(bool state)
+    public void ReceiveMessage(MessageState state)
     {
-        light.SetActive(state);
+        light.SetActive(state.state);
     }
 }
