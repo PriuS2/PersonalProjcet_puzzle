@@ -23,6 +23,8 @@ namespace Puzzle
         private Vector3 _laserDirection;
 
         public bool drawDebugLine;
+
+        private Transform _lastHitSensor;
         
         private void Start()
         {
@@ -37,7 +39,7 @@ namespace Puzzle
         }
 
 
-        private void Update()
+        private void FixedUpdate()
         {
             _currentReflectionNum = 0;
             _reflectionStartPosition = emitPoint.position;
@@ -49,10 +51,9 @@ namespace Puzzle
             {
                 laser.gameObject.SetActive(false);
             }
-
+            RaycastHit hit;
             while (true)
             {
-                RaycastHit hit;
                 if (Physics.Raycast(_reflectionStartPosition, newDirection, out hit, _RemainLaserDistance))
                 {
                     //Debug
@@ -71,6 +72,42 @@ namespace Puzzle
                     _RemainLaserDistance -= hit.distance;
                     _reflectionStartPosition = hit.point;
                     newDirection = Vector3.Reflect(newDirection, hit.normal);
+
+
+                    if (hit.transform.GetComponent<ReceiveLaser>())
+                    {
+                        var hitType = hit.transform.GetComponent<ReceiveLaser>().type;
+                        // if (hitType != ReceiveLaser.ReactType.Reflect)
+                        // {
+                        //     _currentReflectionNum = maxReflectionNum;
+                        // }
+                        switch (hitType)
+                        {
+                            case ReceiveLaser.ReactType.None:
+                            {
+                                _currentReflectionNum = maxReflectionNum;
+                                break;
+                            }
+                            case ReceiveLaser.ReactType.Reflect:
+                            {
+
+                                break;
+                            }
+                            case ReceiveLaser.ReactType.Sensor:
+                            {
+                                _currentReflectionNum = maxReflectionNum;
+                                SendMessage(hit.transform, true);
+                                break;
+                            }
+                        }
+                        
+                    }
+                    else
+                    {
+                        _currentReflectionNum = maxReflectionNum;
+                    }
+                    
+                    
                 }
                 else
                 {
@@ -86,7 +123,16 @@ namespace Puzzle
                     break;
                 }
             }
-            
+
+            if (_lastHitSensor)
+            {
+                if (hit.transform != _lastHitSensor)
+                {
+                    SendMessage(_lastHitSensor, false);
+                    _lastHitSensor = null;
+                }
+            }
+
         }
 
 
@@ -96,9 +142,18 @@ namespace Puzzle
             _lasers[_currentReflectionNum].transform.rotation = Quaternion.identity;
             _lasers[_currentReflectionNum].StartPos = start - transform.position;
             _lasers[_currentReflectionNum].EndPos = start + (direction * length) - transform.position;
-            //_lasers[_currentReflectionNum].LineColor = Color.green;
         }
-        
+
+
+        private void SendMessage(Transform hitTransform, bool state)
+        {
+            _lastHitSensor = hitTransform;
+            MessageState ms = new MessageState();
+            ms.owner = transform;
+            ms.state = state;
+            _lastHitSensor.gameObject.SendMessage("ReceiveMessage", ms);
+            //_lastHitSensor.gameObject.SendMessage("ReceiveMessage",);
+        }
     }
 }
 
