@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Enemy;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Valve.VR;
 
 
 public class PlayerFire : MonoBehaviour
@@ -22,7 +23,9 @@ public class PlayerFire : MonoBehaviour
 
     public GameObject bulletImpact;
     private ParticleSystem _bulletParticle;
+
     public float zoomTime;
+
     //private float _zoomStack = 0;
     private float _targetFieldOfView = 60;
     private bool _needZoom;
@@ -56,15 +59,20 @@ public class PlayerFire : MonoBehaviour
         {
             return;
         }
-        
+
+
+        #region Fire1
+#if USE_VR
+        if(SteamVR_Actions.default_Trigger.GetStateDown(SteamVR_Input_Sources.RightHand))
+#else
         if (Input.GetButtonDown("Fire1"))
+#endif
         {
             RaycastHit hit;
             if (Physics.Raycast(_cam.transform.position, _cam.transform.forward, out hit, 1000))
             {
-
                 // if(hit.transform.gameObject.layer)
-                
+
                 //Draw Debug Line
                 StartCoroutine(DrawLine(.4f));
                 var hitPoint = hit.point;
@@ -84,6 +92,8 @@ public class PlayerFire : MonoBehaviour
                 }
             }
         }
+        #endregion
+
 
         if (Input.GetButtonDown("Fire2") && grenadePool.Count > 0)
         {
@@ -108,6 +118,7 @@ public class PlayerFire : MonoBehaviour
                 _targetFieldOfView = 60;
                 _needZoom = true;
             }
+
             _zoomIn = !_zoomIn;
         }
 
@@ -115,7 +126,7 @@ public class PlayerFire : MonoBehaviour
         {
             if (Mathf.Abs(_cam.fieldOfView - _targetFieldOfView) > .01f)
             {
-                _cam.fieldOfView = Mathf.Lerp(_cam.fieldOfView, _targetFieldOfView, zoomTime*Time.deltaTime);
+                _cam.fieldOfView = Mathf.Lerp(_cam.fieldOfView, _targetFieldOfView, zoomTime * Time.deltaTime);
             }
             else
             {
@@ -123,8 +134,6 @@ public class PlayerFire : MonoBehaviour
                 _needZoom = false;
             }
         }
-
-        
     }
 
     // IEnumerator Zoom()

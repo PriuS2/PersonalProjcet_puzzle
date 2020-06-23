@@ -111,7 +111,8 @@ MonoBehaviour:
   maxLaserDistance: 500
   laserPrefab: {fileID: 122648, guid: 11530f2b0a0cd2442949827ecbb622f2, type: 3}
   emitPoint: {fileID: 8852333477562855251}
-  drawDebugLine: 1
+  laserColor: 0
+  drawDebugLine: 0
 --- !u!1 &8852333477562855244
 GameObject:
   m_ObjectHideFlags: 0

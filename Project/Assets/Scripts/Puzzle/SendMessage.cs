@@ -1,71 +1,71 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Puzzle;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class SendMessage : MonoBehaviour
+namespace Puzzle
 {
-    public enum ReactType
+    public class SendMessage : MonoBehaviour
     {
-        None,
-        CollisionHit,
-        TriggerHit
-    }
-
-    public ReactType reactType;
-    public GameObject sendTo;
-    public string methodName = "ReceiveMessage";
-
-    [SerializeField] private bool _state;
-
-
-    private void OnCollisionEnter(Collision other)
-    {
-        if (sendTo & reactType == ReactType.CollisionHit)
+        public enum ReactType
         {
-            MessageState ms = new MessageState {state = true, owner = transform};
-            sendTo.SendMessage(methodName, ms);
-            _state = true;
+            None,
+            CollisionHit,
+            TriggerHit
         }
-    }
 
-    private void OnCollisionExit(Collision other)
-    {
-        if (sendTo & reactType == ReactType.CollisionHit)
+        public ReactType reactType;
+        public GameObject sendTo;
+        public string methodName = "ReceiveMessage";
+
+        [SerializeField] private bool _state;
+
+
+        private void OnCollisionEnter(Collision other)
         {
-            MessageState ms = new MessageState {state = false, owner = transform};
-            sendTo.SendMessage(methodName, ms);
-            _state = false;
+            if (sendTo & reactType == ReactType.CollisionHit)
+            {
+                MessageState ms = new MessageState {state = true, owner = transform};
+                sendTo.SendMessage(methodName, ms);
+                _state = true;
+            }
         }
-    }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (sendTo& reactType == ReactType.TriggerHit)
+        private void OnCollisionExit(Collision other)
         {
-            MessageState ms = new MessageState {state = true, owner = transform};
-            sendTo.SendMessage(methodName, ms);
-            _state = true;
+            if (sendTo & reactType == ReactType.CollisionHit)
+            {
+                MessageState ms = new MessageState {state = false, owner = transform};
+                sendTo.SendMessage(methodName, ms);
+                _state = false;
+            }
         }
-    }
 
-    private void OnTriggerExit(Collider other)
-    {
-        if (sendTo& reactType == ReactType.TriggerHit)
+        private void OnTriggerEnter(Collider other)
         {
-            MessageState ms = new MessageState {state = false, owner = transform};
-            sendTo.SendMessage("ReceiveMessage", ms);
-            _state = false;
+            if (sendTo& reactType == ReactType.TriggerHit)
+            {
+                MessageState ms = new MessageState {state = true, owner = transform};
+                sendTo.SendMessage(methodName, ms);
+                _state = true;
+            }
         }
-    }
 
-    public void ReceiveMessage(MessageState state)
-    {
-        _state = state.state;
-        if (sendTo)
+        private void OnTriggerExit(Collider other)
         {
-            sendTo.SendMessage("ReceiveMessage", state);
+            if (sendTo& reactType == ReactType.TriggerHit)
+            {
+                MessageState ms = new MessageState {state = false, owner = transform};
+                sendTo.SendMessage(methodName, ms);
+                _state = false;
+            }
+        }
+
+        public void ReceiveMessage(MessageState state)
+        {
+            _state = state.state;
+            
+            if (sendTo)
+            {
+                sendTo.SendMessage("ReceiveMessage", state);
+            }
         }
     }
 }

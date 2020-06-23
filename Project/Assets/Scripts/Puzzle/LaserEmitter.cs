@@ -17,10 +17,23 @@ namespace Puzzle
         
         public GameObject laserPrefab;
         private VolumetricLineBehavior[] _lasers;
-
         public Transform emitPoint;
         private Vector3 _reflectionStartPosition;
         private Vector3 _laserDirection;
+
+        public bool activateWhenStart = true;
+        private bool _activate = false;
+        
+        
+
+        public enum LaserColor
+        {
+            Red,
+            Green,
+            Blue
+        }
+
+        public LaserColor laserColor;
 
         public bool drawDebugLine;
 
@@ -33,6 +46,27 @@ namespace Puzzle
             {
                 var temp = Instantiate(laserPrefab, transform);
                 _lasers[i] = temp.GetComponent<VolumetricLineBehavior>();
+
+
+                switch (laserColor)
+                {
+                    case LaserColor.Red:
+                    {
+                        _lasers[i].LineColor = Color.red;
+                        break;
+                    }
+                    case LaserColor.Green:
+                    {
+                        _lasers[i].LineColor = Color.green;
+                        break;
+                    }
+                    case LaserColor.Blue:
+                    {
+                        _lasers[i].LineColor = Color.blue;
+                        break;
+                    }
+                }
+                
                 temp.SetActive(false);
             }
             
@@ -41,16 +75,34 @@ namespace Puzzle
 
         private void FixedUpdate()
         {
-            _currentReflectionNum = 0;
-            _reflectionStartPosition = emitPoint.position;
-            _laserDirection = emitPoint.forward;
-            var newDirection = _laserDirection;
-            _RemainLaserDistance = maxLaserDistance;
+            //print(activateWhenStart + " / " + _activate + " / " + (activateWhenStart ^ _activate));
+
 
             foreach (var laser in _lasers)
             {
                 laser.gameObject.SetActive(false);
             }
+            
+            
+            if (!(activateWhenStart ^ _activate))
+            {
+                if (_lastHitSensor)
+                {
+                    SendMessage(_lastHitSensor, false);
+                    _lastHitSensor = null;
+                }
+                return;
+            }
+            
+            
+            _currentReflectionNum = 0;
+            _reflectionStartPosition = emitPoint.position;
+            _laserDirection = emitPoint.forward;
+            var newDirection = _laserDirection;
+            _RemainLaserDistance = maxLaserDistance;
+            
+
+
             RaycastHit hit;
             while (true)
             {
@@ -132,7 +184,6 @@ namespace Puzzle
                     _lastHitSensor = null;
                 }
             }
-
         }
 
 
@@ -151,8 +202,15 @@ namespace Puzzle
             MessageState ms = new MessageState();
             ms.owner = transform;
             ms.state = state;
+            ms.laserColor = laserColor;
             _lastHitSensor.gameObject.SendMessage("ReceiveMessage", ms);
             //_lastHitSensor.gameObject.SendMessage("ReceiveMessage",);
+        }
+
+        public void ReceiveMessage(MessageState ms)
+        {
+            _activate = ms.state;
+            //print(ms.state);
         }
     }
 }

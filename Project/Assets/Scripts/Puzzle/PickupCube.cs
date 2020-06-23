@@ -11,11 +11,18 @@ namespace Puzzle
         private float _handlePower;
         private float _rotatePower;
         private bool _collision;
+        private Outline _outline;
 
         private void Start()
         {
-            _rigidbody = GetComponent<Rigidbody>();
+            _rigidbody = GetComponent<Rigidbody>()? GetComponent<Rigidbody>() : gameObject.AddComponent<Rigidbody>();
             _rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            
+            
+            _outline = gameObject.AddComponent<Outline>();
+            _outline.OutlineMode = Outline.Mode.OutlineVisible;
+            _outline.OutlineColor = Color.red;
+            _outline.OutlineWidth = 0f;
         }
 
         private void Update()
@@ -57,6 +64,11 @@ namespace Puzzle
         private void OnCollisionExit(Collision other)
         {
             _collision = false;
+        }
+
+        public void ActivateOutline(bool state)
+        {
+            _outline.OutlineWidth = state ? 10.0f : 0.0f;
         }
     }
 }

@@ -6,5 +6,6 @@ namespace Puzzle
     {
         public bool state;
         public Transform owner;
+        public LaserEmitter.LaserColor laserColor;
     }
 }

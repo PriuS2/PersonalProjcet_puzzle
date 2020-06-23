@@ -97,5 +97,5 @@ MonoBehaviour:
   m_startPos: {x: 0, y: 5, z: 0}
   m_endPos: {x: 0, y: 0, z: 0}
   m_lineColor: {r: 0, g: 1, b: 1, a: 1}
-  m_lineWidth: 0.68
+  m_lineWidth: 0.17
   m_lightSaberFactor: 0.8

@@ -41,7 +41,8 @@ public class PlayerMovement : MonoBehaviour
         _currentHp = maxHp;
         UpdateHpSlide();
 
-        GameManager.gm.playerMovement = this;
+        //GameManager.gm.playerMovement = this;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     // Update is called once per frame

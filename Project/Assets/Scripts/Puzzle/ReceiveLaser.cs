@@ -21,13 +21,51 @@ namespace Puzzle
 
         public ReactType type = ReactType.None;
 
+        public LaserEmitter.LaserColor reactColor;
+
+
+        private void Start()
+        {   
+            Color color = new Color();
+            switch (reactColor)
+            {
+                case LaserEmitter.LaserColor.Red:
+                {
+                    color = Color.red;
+                    break;
+                }
+                case LaserEmitter.LaserColor.Green:
+                {
+                    color = Color.green;
+                    break;
+                }
+                case LaserEmitter.LaserColor.Blue:
+                {
+                    color = Color.blue;
+                    break;
+                }
+            }
+
+            if (type == ReactType.Sensor)
+            {
+                Material newMaterial = new Material(GetComponent<MeshRenderer>().material);
+                GetComponent<MeshRenderer>().material = newMaterial;
+                newMaterial.color = color;
+            }
+            //GetComponent<MeshRenderer>().material.color = color;
+            
+            // Material test = new Material(GetComponent<MeshRenderer>().material);
+            // GetComponent<MeshRenderer>().material = test;
+            // test.color = color;
+        }
+
 
         public void ReceiveMessage(MessageState state)
         {
 
             if (state.state)//On
             {
-                if (!laserList.Contains(state.owner))
+                if (!laserList.Contains(state.owner) & state.laserColor == reactColor)
                 {
                     laserList.Add(state.owner);
                 }
@@ -44,7 +82,7 @@ namespace Puzzle
             }
             else//Off
             {
-                if (laserList.Contains(state.owner))
+                if (laserList.Contains(state.owner) & state.laserColor == reactColor)
                 {
                     laserList.Remove(state.owner);
                 }
