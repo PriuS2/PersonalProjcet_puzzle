@@ -148,7 +148,11 @@ namespace Puzzle
                             case ReceiveLaser.ReactType.Sensor:
                             {
                                 _currentReflectionNum = maxReflectionNum;
-                                SendMessage(hit.transform, true);
+
+                                if (_lastHitSensor != hit.transform)
+                                {
+                                    SendMessage(hit.transform, true);
+                                }
                                 break;
                             }
                         }

@@ -43,6 +43,7 @@ public class PlayerMovement : MonoBehaviour
 
         //GameManager.gm.playerMovement = this;
         Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.lockState = CursorLockMode.Confined;
     }
 
     // Update is called once per frame

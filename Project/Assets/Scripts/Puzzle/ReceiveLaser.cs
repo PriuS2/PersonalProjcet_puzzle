@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.Serialization;
 
 namespace Puzzle
@@ -22,7 +23,7 @@ namespace Puzzle
         public ReactType type = ReactType.None;
 
         public LaserEmitter.LaserColor reactColor;
-
+        private Light _light;
 
         private void Start()
         {   
@@ -51,12 +52,18 @@ namespace Puzzle
                 Material newMaterial = new Material(GetComponent<MeshRenderer>().material);
                 GetComponent<MeshRenderer>().material = newMaterial;
                 newMaterial.color = color;
+                
+                _light = transform.GetComponentInChildren<Light>();
+                _light.color = color;
+                _light.enabled = false;
             }
             //GetComponent<MeshRenderer>().material.color = color;
             
             // Material test = new Material(GetComponent<MeshRenderer>().material);
             // GetComponent<MeshRenderer>().material = test;
             // test.color = color;
+
+
         }
 
 
@@ -67,6 +74,7 @@ namespace Puzzle
             {
                 if (!laserList.Contains(state.owner) & state.laserColor == reactColor)
                 {
+                    if(type == ReactType.Sensor) _light.enabled = true;
                     laserList.Add(state.owner);
                 }
 
@@ -84,6 +92,7 @@ namespace Puzzle
             {
                 if (laserList.Contains(state.owner) & state.laserColor == reactColor)
                 {
+                    if(type == ReactType.Sensor) _light.enabled = false;
                     laserList.Remove(state.owner);
                 }
                 
@@ -96,6 +105,13 @@ namespace Puzzle
                     }
                 }
             }
+
+            // if (reactColor == LaserEmitter.LaserColor.Red)
+            // {
+            //     print(state.state);
+            // }
+            
+
         }
     }
 }
