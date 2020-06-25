@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Player;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using Valve.VR.InteractionSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -29,6 +31,8 @@ public class PlayerMovement : MonoBehaviour
     public int maxHp = 100;
     private int _currentHp;
 
+    private DrawTeleportArc _teleportArc;
+
 
     // Start is called before the first frame update
     private void Start()
@@ -44,6 +48,7 @@ public class PlayerMovement : MonoBehaviour
         //GameManager.gm.playerMovement = this;
         Cursor.lockState = CursorLockMode.Locked;
         //Cursor.lockState = CursorLockMode.Confined;
+        _teleportArc = GetComponent<DrawTeleportArc>();
     }
 
     // Update is called once per frame
@@ -65,7 +70,13 @@ public class PlayerMovement : MonoBehaviour
                 _jumpStart = true;
             }
         }
+        
 
+        
+
+
+
+        
         if (_controller.collisionFlags == CollisionFlags.Above || _controller.collisionFlags == CollisionFlags.Below)
         {
             _yVelocity = 0;
@@ -76,10 +87,21 @@ public class PlayerMovement : MonoBehaviour
         {
             OnDamaged(10);
         }
-    }
-
-    private void FixedUpdate()
-    {
+        
+        
+        //텔레포트
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            _teleportArc.DrawStart();
+        }
+        if (Input.GetKeyUp(KeyCode.Alpha1))
+        {
+            var destination = _teleportArc.DrawEnd();
+            // print(destination);
+            PlayerTeleport(destination);
+            return;
+        }
+        
         var resultMove = Vector3.zero;
         resultMove += Move(_inputHorizontal, _inputVertical);
         Gravity();
@@ -92,6 +114,12 @@ public class PlayerMovement : MonoBehaviour
 
         resultMove += new Vector3(0, _yVelocity, 0);
         _controller.Move(resultMove);
+    }
+
+
+    private void FixedUpdate()
+    {
+
     }
 
 
@@ -128,7 +156,7 @@ public class PlayerMovement : MonoBehaviour
         if (_currentHp <= 0)
         {
             _currentHp = 0;
-            GameManager.gm.PlayerDie();
+            //GameManager.gm.PlayerDie();
         }
 
         StartCoroutine(HitEffect());
@@ -179,5 +207,11 @@ public class PlayerMovement : MonoBehaviour
         var newAlpah = Mathf.Lerp(currentAlpah, _targetAlpha, Time.deltaTime * 10);
         hitImage.color = new Color(1,0,0,newAlpah);
         
+    }
+    
+    
+    private void PlayerTeleport(Vector3 destination)
+    {
+        transform.position = destination + Vector3.up;
     }
 }
