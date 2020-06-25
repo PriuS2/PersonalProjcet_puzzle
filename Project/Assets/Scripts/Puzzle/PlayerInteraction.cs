@@ -11,6 +11,8 @@ public class PlayerInteraction : MonoBehaviour
     private Camera _mainCam;
     private bool _pickup;
     public Transform attachPoint;
+    //private Vector3 initPosition_attachPoint;
+    
     public float handlePower;
     public float rotatePower;
     public float detachDistance;
@@ -22,6 +24,7 @@ public class PlayerInteraction : MonoBehaviour
     private void Start()
     {
         _mainCam = Camera.main;
+        //initPosition_attachPoint = attachPoint.position;
     }
 
     private void Update()
@@ -38,23 +41,7 @@ public class PlayerInteraction : MonoBehaviour
             }
         }
 
-        if (Input.GetKey(KeyCode.Q))
-        {
-            
-        }
         
-        if (Input.GetKey(KeyCode.E))
-        {
-            
-        }
-
-        float rotY = Input.GetKey(KeyCode.Q) ? -1.0f : 0.0f;
-        rotY += Input.GetKey(KeyCode.E) ? 1.0f : 0.0f;
-        rotY *= Time.deltaTime * rotateSpeed;
-        var rot = new Vector3(0, rotY, 0);
-        attachPoint.Rotate(rot);
-        
-
         if (_pickup)
         {
             var distance = Vector3.Distance(attachPoint.position, _pickupCube.transform.position);
@@ -68,6 +55,20 @@ public class PlayerInteraction : MonoBehaviour
 
     private void FixedUpdate()
     {
+        float rotY = Input.GetKey(KeyCode.Q) ? -1.0f : 0.0f;
+        rotY += Input.GetKey(KeyCode.E) ? 1.0f : 0.0f;
+        rotY *= Time.deltaTime * rotateSpeed;
+        var newRotY = new Vector3(0, rotY, 0);
+        attachPoint.Rotate(newRotY);
+        
+        float rotX = Input.GetKey(KeyCode.R) ? -1.0f : 0.0f;
+        rotX += Input.GetKey(KeyCode.F) ? 1.0f : 0.0f;
+        rotX *= Time.deltaTime * rotateSpeed;
+        var newRotX = new Vector3(rotX, 0, 0);
+        attachPoint.Rotate(newRotX);
+        
+        
+        
         RaycastHit hit;
         if (Physics.Raycast(_mainCam.transform.position, _mainCam.transform.forward, out hit, 2))
         {

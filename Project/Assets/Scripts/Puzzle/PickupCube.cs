@@ -27,16 +27,16 @@ namespace Puzzle
 
         private void Update()
         {
-            if (_attached)
-            {
-                var thisTransform = transform;
-                var newDir = _attachPoint.position - thisTransform.position;
-                var newVel = _collision? newDir * (_handlePower * .3f) : newDir * _handlePower;
-                _rigidbody.velocity = newVel;
+            if (!_attached) return;
+            
+            
+            var thisTransform = transform;
+            var newDir = _attachPoint.position - thisTransform.position;
+            var newVel = _collision? newDir * (_handlePower * .3f) : newDir * _handlePower;
+            _rigidbody.velocity =Vector3.Lerp(_rigidbody.velocity, newVel, 0.5f);
 
-                var targetRot = _attachPoint.rotation.eulerAngles;
-                thisTransform.eulerAngles = targetRot;
-            }
+            var targetRot = _attachPoint.rotation.eulerAngles;
+            thisTransform.eulerAngles = targetRot;
         }
 
         public void Pickup(Transform attachPoint, float handlePower, float rotatePower)

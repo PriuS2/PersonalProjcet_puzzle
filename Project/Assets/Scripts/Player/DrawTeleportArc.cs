@@ -66,15 +66,7 @@ namespace Player
                     _path.Add(startPos);
                 }
             }
-
-            //var pathCount = _path.Count;
-            // Vector3[] pathArray = new Vector3[_path.Count];
-            //
-            // for (int i = 0; i < pathCount; i++)
-            // {
-            //     pathArray[i] = _path[i];
-            // }
-            //     
+            
             _lineRenderer.positionCount = _path.Count;
             _lineRenderer.SetPositions(_path.ToArray());
             
@@ -100,6 +92,7 @@ namespace Player
             var deltaVec = endPos - startPos;
             var dist = deltaVec.magnitude;
             var dir = deltaVec.normalized;
+            
             if (Physics.Raycast(startPos, dir, out _raycastHit, dist))
             {
                 DrawDebugLine(startPos, _raycastHit.point);

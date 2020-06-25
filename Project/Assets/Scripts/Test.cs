@@ -1,25 +1,48 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+
+[ExecuteInEditMode]
 
 public class Test : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public List<GameObject> testOjbjeObjects = new List<GameObject>();
+    
+    public GameObject obj;
+    
+    private void Awake()
     {
         
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
+        testOjbjeObjects.Add(Instantiate(obj, transform.position, Quaternion.identity));
         
+        
+        //Destroy(testOjbjeObjects[0], 3.0f);
+        while (true)
+        {
+            if (testOjbjeObjects.Count > 30)
+            {
+                DestroyImmediate(testOjbjeObjects[0], true);
+                testOjbjeObjects.Remove(testOjbjeObjects[0]);
+            }
+            else
+            {
+                break;
+            }
+        }
+
     }
+}
 
-
-
-    public void TestPrint(string text)
+public class Test2 : MonoBehaviour
+{
+    private void Update()
     {
-        print(text);
+        print("222222");
     }
 }

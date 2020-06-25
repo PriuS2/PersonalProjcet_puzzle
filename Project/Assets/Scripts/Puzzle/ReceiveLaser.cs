@@ -24,7 +24,7 @@ namespace Puzzle
 
         public LaserEmitter.LaserColor reactColor;
         private Light _light;
-
+        
         private void Start()
         {   
             Color color = new Color();

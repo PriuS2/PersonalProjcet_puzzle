@@ -29,6 +29,8 @@ public class PlayerMovement : MonoBehaviour
     public Image hitImage;
 
     public int maxHp = 100;
+    public MeshRenderer cameraFadeMeshRenderer;
+    private Material _cameraFadeMaterial;
     private int _currentHp;
 
     private DrawTeleportArc _teleportArc;
@@ -37,6 +39,8 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
+        //cameraFadeMaterial = GetComponent<MeshRenderer>().material
+        _cameraFadeMaterial = cameraFadeMeshRenderer.material;
         _remainJump = jumpStack;
         _body = transform;
         _initRot = transform.eulerAngles;
@@ -83,10 +87,10 @@ public class PlayerMovement : MonoBehaviour
         }
 
 
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            OnDamaged(10);
-        }
+        // if (Input.GetKeyDown(KeyCode.Alpha1))
+        // {
+        //     OnDamaged(10);
+        // }
         
         
         //텔레포트
@@ -109,7 +113,7 @@ public class PlayerMovement : MonoBehaviour
         if (_jumpStart)
         {
             _jumpStart = false;
-            _yVelocity = jumpPower * Time.deltaTime;
+            _yVelocity = jumpPower* .01f;// * Time.deltaTime;
         }
 
         resultMove += new Vector3(0, _yVelocity, 0);
@@ -208,10 +212,40 @@ public class PlayerMovement : MonoBehaviour
         hitImage.color = new Color(1,0,0,newAlpah);
         
     }
-    
-    
+
+
+    private bool isTeleport = false;
     private void PlayerTeleport(Vector3 destination)
     {
-        transform.position = destination + Vector3.up;
+        StartCoroutine(CameraFade(destination));
     }
+
+    IEnumerator CameraFade(Vector3 destination)
+    {
+        if(isTeleport) yield break;
+        
+        isTeleport = true;
+        var time = .2f;
+        var targetAlpha = 1;
+        for (float i = 0; i < time; i += Time.deltaTime)
+        {
+            var newAlpha = i / time;
+            _cameraFadeMaterial.color = new Color(0,0,0,newAlpha);
+            yield return new WaitForSeconds(Time.deltaTime);
+        }
+        
+        transform.position = destination + Vector3.up;
+        
+
+        for (float i = 0; i < time; i += Time.deltaTime)
+        {
+            var newAlpha = 1 - i / time;
+            _cameraFadeMaterial.color = new Color(0,0,0,newAlpha);
+            yield return new WaitForSeconds(Time.deltaTime);
+        }
+
+        isTeleport = false;
+    }
+    
+    
 }
