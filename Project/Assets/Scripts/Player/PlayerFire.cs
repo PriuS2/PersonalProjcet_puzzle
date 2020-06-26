@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Enemy;
 using UnityEngine;
 using UnityEngine.Serialization;
-using Valve.VR;
+// using Valve.VR;
 
 
 public class PlayerFire : MonoBehaviour

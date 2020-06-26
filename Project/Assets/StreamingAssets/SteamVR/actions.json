@@ -1,53 +1,8 @@
 {
-  "actions": [
-    {
-      "name": "/actions/Default/in/Trigger",
-      "type": "boolean"
-    },
-    {
-      "name": "/actions/Default/in/Grip",
-      "type": "boolean"
-    },
-    {
-      "name": "/actions/Default/in/PadTouch",
-      "type": "boolean"
-    },
-    {
-      "name": "/actions/Default/in/D_Up",
-      "type": "boolean"
-    },
-    {
-      "name": "/actions/Default/in/D_Down",
-      "type": "boolean"
-    },
-    {
-      "name": "/actions/Default/in/D_Left",
-      "type": "boolean"
-    },
-    {
-      "name": "/actions/Default/in/D_Right",
-      "type": "boolean"
-    },
-    {
-      "name": "/actions/Default/in/PadPosition",
-      "type": "vector2"
-    },
-    {
-      "name": "/actions/Default/in/LeftController",
-      "type": "pose"
-    },
-    {
-      "name": "/actions/Default/in/RightController",
-      "type": "pose"
-    },
-    {
-      "name": "/actions/Default/out/Haptic",
-      "type": "vibration"
-    }
-  ],
+  "actions": [],
   "action_sets": [
     {
-      "name": "/actions/Default",
+      "name": "/actions/NewSet",
       "usage": "single"
     }
   ],
@@ -103,10 +58,7 @@
   ],
   "localization": [
     {
-      "language_tag": "en_US",
-      "/actions/Default/in/PadPosition": "PadPosition",
-      "/actions/Default/in/RightController": "RightController",
-      "/actions/Default/in/LeftController": "LeftController"
+      "language_tag": "en_US"
     }
   ]
 }
