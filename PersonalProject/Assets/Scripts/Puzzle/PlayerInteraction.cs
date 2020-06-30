@@ -8,23 +8,38 @@ using UnityEngine.UI;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    private Camera _mainCam;
+    //private Camera _mainCam;
     private bool _pickup;
-    public Transform attachPoint;
-    //private Vector3 initPosition_attachPoint;
     
+    public Transform attachPoint;
+    
+    public float rayDistance;
+
     public float handlePower;
     public float rotatePower;
     public float detachDistance;
     public float rotateSpeed;
-    
+
     private PickupCube _pickupCube;
     private PickupCube _rayhitCube;
 
+    //private Transform _grabTransform;
+    private Vector3 _rayDirection;
+
+    public bool activeWhenUseVr;
+
     private void Start()
     {
-        _mainCam = Camera.main;
-        //initPosition_attachPoint = attachPoint.position;
+#if USE_VR
+        //_grabTransform = 
+        if (!attachPoint)
+        {  
+            attachPoint = transform;
+        }
+#else
+        //_mainCam = Camera.main;
+        //_grabTransform = _mainCam.transform;
+#endif
     }
 
     private void Update()
@@ -41,7 +56,7 @@ public class PlayerInteraction : MonoBehaviour
             }
         }
 
-        
+
         if (_pickup)
         {
             var distance = Vector3.Distance(attachPoint.position, _pickupCube.transform.position);
@@ -55,31 +70,36 @@ public class PlayerInteraction : MonoBehaviour
 
     private void FixedUpdate()
     {
+#if USE_VR
+
+        _rayDirection = attachPoint.right * -1;
+#else
         float rotY = Input.GetKey(KeyCode.Q) ? -1.0f : 0.0f;
         rotY += Input.GetKey(KeyCode.E) ? 1.0f : 0.0f;
         rotY *= Time.deltaTime * rotateSpeed;
         var newRotY = new Vector3(0, rotY, 0);
         attachPoint.Rotate(newRotY);
-        
+
         float rotX = Input.GetKey(KeyCode.R) ? -1.0f : 0.0f;
         rotX += Input.GetKey(KeyCode.F) ? 1.0f : 0.0f;
         rotX *= Time.deltaTime * rotateSpeed;
         var newRotX = new Vector3(rotX, 0, 0);
         attachPoint.Rotate(newRotX);
-        
-        
-        
+        _rayDirection = attachPoint.forward;
+#endif
+
+
         RaycastHit hit;
-        if (Physics.Raycast(_mainCam.transform.position, _mainCam.transform.forward, out hit, 2))
+        if (Physics.Raycast(attachPoint.position, _rayDirection, out hit, rayDistance))
         {
+            Debug.DrawRay(attachPoint.position, _rayDirection * rayDistance, Color.red, .02f);
             if (hit.transform.GetComponent<PickupCube>())
             {
-                
-                var temp = hit.transform.GetComponent<PickupCube>()? hit.transform.GetComponent<PickupCube>() : null;
+                var temp = hit.transform.GetComponent<PickupCube>() ? hit.transform.GetComponent<PickupCube>() : null;
 
                 if (_rayhitCube != temp)
                 {
-                    if(_rayhitCube) _rayhitCube.ActivateOutline(false);
+                    if (_rayhitCube) _rayhitCube.ActivateOutline(false);
                 }
 
                 _rayhitCube = temp;
@@ -97,10 +117,10 @@ public class PlayerInteraction : MonoBehaviour
     }
 
 
-    private void Pickup()
+    public void Pickup()
     {
         RaycastHit hit;
-        if (Physics.Raycast(_mainCam.transform.position, _mainCam.transform.forward, out hit, 2))
+        if (Physics.Raycast(attachPoint.position, _rayDirection, out hit, rayDistance))
         {
             if (hit.transform.GetComponent<PickupCube>())
             {
@@ -111,7 +131,7 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
-    private void Drop()
+    public void Drop()
     {
         if (_pickupCube)
         {
@@ -120,6 +140,4 @@ public class PlayerInteraction : MonoBehaviour
             attachPoint.rotation = transform.rotation;
         }
     }
-    
-    
 }

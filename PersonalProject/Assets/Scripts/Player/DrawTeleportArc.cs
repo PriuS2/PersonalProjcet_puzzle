@@ -6,7 +6,7 @@ namespace Player
 {
     public class DrawTeleportArc : MonoBehaviour
     {
-        public Transform launchTransform;
+        public Transform launchDirection;
         public float launchPower;
         public float samplingFrequency;
         private bool _draw;
@@ -20,6 +20,8 @@ namespace Player
 
         private Vector3 _destination;
 
+        public OVRInput.Button teleportButton;
+
         [SerializeField]private List<Vector3> _path;
 
         private void Start()
@@ -29,22 +31,28 @@ namespace Player
             _lineRenderer = gameObject.GetComponent<LineRenderer>()?  gameObject.GetComponent<LineRenderer>() : gameObject.AddComponent<LineRenderer>();
             _path = new List<Vector3>();
         }
-
+        
 
         private void Update()
         {
+            if (OVRInput.GetDown(teleportButton, OVRInput.Controller.Touch)) _draw = true;
+            if (OVRInput.GetUp(teleportButton, OVRInput.Controller.Touch)) _draw = false;
+            
+            
             if (!_draw) return;
 
             
             _path.Clear();
 
-            var startPos = launchTransform.position;
+            var startPos = transform.position;
             _path.Add(startPos);
+
+            var direction = (launchDirection.position - startPos).normalized;
             
             
             // var launchDegree = launchTransform.eulerAngles.z;
-            var deltaPosition = launchTransform.right * (-1 * launchPower);
-            var endPos = startPos + deltaPosition;
+            var deltaPosition = direction * launchPower ;
+            var endPos = startPos + deltaPosition / samplingFrequency;
             
             
             for (int i = 0; i < maxPathNum; i++)
@@ -53,7 +61,7 @@ namespace Player
                 
                 startPos = endPos;
                 deltaPosition += _gravity * .02f;
-                endPos = startPos + deltaPosition;
+                endPos = startPos + deltaPosition / samplingFrequency;
 
                 if (isHit)
                 {

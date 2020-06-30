@@ -7,16 +7,17 @@ public class OVRHandInput : MonoBehaviour
     private OVRHand _ovrHand;
     private Dictionary<int, OVRHand.HandFinger> _indexToFinger = new Dictionary<int, OVRHand.HandFinger>();
     private Vector3 _relativePosition;
-    public GameObject sphereAnchor;
+    //public GameObject sphereAnchor;
     public PlayerMovement PlayerMovement;
-    
+    private PlayerInteraction _playerInteraction;
     
     
     public enum Action
     {
         None,
         Walk,
-        Teleport
+        Teleport,
+        Grab
     }
     
     [System.Serializable]
@@ -36,8 +37,8 @@ public class OVRHandInput : MonoBehaviour
         public float Horizontal;
         public float Vertical;
     }
-    
-    
+
+    private Dictionary<Action, int> _actionInt = new Dictionary<Action, int>();
 
     
     //Inspector
@@ -63,6 +64,37 @@ public class OVRHandInput : MonoBehaviour
         _indexToFinger.Add(2, OVRHand.HandFinger.Middle);
         _indexToFinger.Add(3, OVRHand.HandFinger.Ring);
         _indexToFinger.Add(4, OVRHand.HandFinger.Pinky);
+
+        _playerInteraction = GetComponent<PlayerInteraction>();
+        
+        //Walk to FingerIndex
+        var walk = Action.Walk;
+        var index = 0;
+        if (fingerAction.index == walk) index = 1;
+        else if (fingerAction.middle == walk) index = 2;
+        else if (fingerAction.ring == walk) index = 3;
+        else if (fingerAction.pinky == walk) index = 4;
+        _actionInt.Add(walk, index);
+        
+        
+        //Teleport to FingerIndex
+        var teleport = Action.Teleport;
+        index = 0;
+        if (fingerAction.index == teleport) index = 1;
+        else if (fingerAction.middle == teleport) index = 2;
+        else if (fingerAction.ring == teleport) index = 3;
+        else if (fingerAction.pinky == teleport) index = 4;
+        _actionInt.Add(teleport, index);
+        
+        //Grab to FingerIndex
+        var grab = Action.Grab;
+        index = 0;
+        if (fingerAction.index == grab) index = 1;
+        else if (fingerAction.middle == grab) index = 2;
+        else if (fingerAction.ring == grab) index = 3;
+        else if (fingerAction.pinky == grab) index = 4;
+        _actionInt.Add(grab, index);
+        
     }
     
     void Update()
@@ -106,7 +138,7 @@ public class OVRHandInput : MonoBehaviour
 
         if (lastState != _uniqueState)
         {
-            print("StateChanged");
+            //print("StateChanged");
             StateChanged(lastState);
         }
     }
@@ -114,26 +146,34 @@ public class OVRHandInput : MonoBehaviour
     private void StateChanged(int last)
     {
         _relativePosition = transform.parent.localPosition;
-        if (sphereAnchor) sphereAnchor.transform.position = transform.position;
-        
-        
-        var teleport = Action.Teleport;
-        var index = 0;
-        if (fingerAction.index == teleport) index = 1;
-        else if (fingerAction.middle == teleport) index = 2;
-        else if (fingerAction.ring == teleport) index = 3;
-        else if (fingerAction.pinky == teleport) index = 4;
+        //if (sphereAnchor) sphereAnchor.transform.position = transform.position;
 
-        if (index != 0 & index == _uniqueState)
+
+        //Teleport
+        var teleportIndex = _actionInt[Action.Teleport];
+        
+        if (teleportIndex != 0 & teleportIndex == _uniqueState)
         {
             //draw teleportArc
-            PlayerMovement.DrawTeleportArc(transform);
+            //PlayerMovement.DrawTeleportArc(transform);
         }
-        else if (last == index)
+        else if (last == teleportIndex)
         {
             //excute teleport
-            PlayerMovement.ExcuteTeleport();
-            
+            //PlayerMovement.ExcuteTeleport();
+        }
+        
+        //Grab
+        var grabIndex = _actionInt[Action.Grab];
+        if (grabIndex != 0 & grabIndex == _uniqueState)
+        {
+            //Pickup
+            _playerInteraction.Pickup();
+        }
+        else if (last == grabIndex)
+        {
+            //Drop
+            _playerInteraction.Drop();
         }
         
     }
@@ -142,30 +182,26 @@ public class OVRHandInput : MonoBehaviour
     {
         
         var walk = Action.Walk;
-        var index = 0;
-        if (fingerAction.index == walk) index = 1;
-        else if (fingerAction.middle == walk) index = 2;
-        else if (fingerAction.ring == walk) index = 3;
-        else if (fingerAction.pinky == walk) index = 4;
 
         var result = new InputResult();
-        
-        if (index != 0 & index == _uniqueState)
+
+        var walkIndex = _actionInt[Action.Walk];
+        if (walkIndex != 0 & walkIndex == _uniqueState)
         {
             result.State = true;
             var dir = GetMoveDirection();
             result.Vertical = Mathf.Abs(dir.x) > 0.2f ? dir.x : 0;
             result.Horizontal =  Mathf.Abs(dir.y) > 0.2f ? dir.y : 0;
             
-            VRDebug.VrDebug.Print(result.Vertical + " / " + result.Horizontal);
+            //VRDebug.VrDebug.Print(result.Vertical + " / " + result.Horizontal);
             //print(result.Vertical + " / " + result.Horizontal);
 
-            if (sphereAnchor) if(!sphereAnchor.active) sphereAnchor.SetActive(true);
+            //if (sphereAnchor) if(!sphereAnchor.active) sphereAnchor.SetActive(true);
         }
         else
         {
             result.State = false;
-            if (sphereAnchor) if(sphereAnchor.active)  sphereAnchor.SetActive(false);
+            //if (sphereAnchor) if(sphereAnchor.active)  sphereAnchor.SetActive(false);
         }
         return result;
     }
@@ -173,8 +209,7 @@ public class OVRHandInput : MonoBehaviour
     private Vector2 GetMoveDirection()
     {
         var deltaPosition =  _relativePosition - transform.parent.localPosition;
-
-        //var newDelta = transform.parent.parent.InverseTransformDirection(deltaPosition);
+        
         var result =  new Vector2(Mathf.Clamp(deltaPosition.x * 15, -1.0f, 1.0f), Mathf.Clamp(deltaPosition.z * 15, -1.0f, 1.0f));
         //print(result);
         VRDebug.VrDebug.Print(-result.x + " \n / " + -result.y);

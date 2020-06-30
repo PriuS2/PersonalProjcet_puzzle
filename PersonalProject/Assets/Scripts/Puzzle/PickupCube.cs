@@ -32,8 +32,10 @@ namespace Puzzle
             
             var thisTransform = transform;
             var newDir = _attachPoint.position - thisTransform.position;
-            var newVel = _collision? newDir * (_handlePower * .3f) : newDir * _handlePower;
+            var newVel = _collision? newDir * (_handlePower * .2f) : newDir * _handlePower;
             _rigidbody.velocity =Vector3.Lerp(_rigidbody.velocity, newVel, 0.5f);
+            
+            
 
             var targetRot = _attachPoint.rotation.eulerAngles;
             thisTransform.eulerAngles = targetRot;
