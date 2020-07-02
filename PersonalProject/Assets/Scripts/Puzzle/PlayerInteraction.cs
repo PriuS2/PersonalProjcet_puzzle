@@ -28,6 +28,8 @@ public class PlayerInteraction : MonoBehaviour
 
     public bool activeWhenUseVr;
 
+    public OVRInput.Button grabButton;
+
     private void Start()
     {
 #if USE_VR
@@ -44,6 +46,24 @@ public class PlayerInteraction : MonoBehaviour
 
     private void Update()
     {
+        
+        #if USE_VR
+        if (OVRInput.GetDown(grabButton, OVRInput.Controller.Touch))
+        {
+            if (!_pickup)
+            {
+                Pickup();
+            }
+        }
+
+        if (OVRInput.GetUp(grabButton, OVRInput.Controller.Touch))
+        {
+            if (_pickup)
+            {
+                Drop();
+            }
+        }
+        
         if (Input.GetButtonDown("Fire1"))
         {
             if (_pickup)
@@ -55,6 +75,21 @@ public class PlayerInteraction : MonoBehaviour
                 Pickup();
             }
         }
+        
+        #else
+        if (Input.GetButtonDown("Fire1"))
+        {
+            if (_pickup)
+            {
+                Drop();
+            }
+            else
+            {
+                Pickup();
+            }
+        }
+        #endif
+
 
 
         if (_pickup)
@@ -72,7 +107,7 @@ public class PlayerInteraction : MonoBehaviour
     {
 #if USE_VR
 
-        _rayDirection = attachPoint.right * -1;
+        _rayDirection = attachPoint.forward;//attachPoint.right * -1;
 #else
         float rotY = Input.GetKey(KeyCode.Q) ? -1.0f : 0.0f;
         rotY += Input.GetKey(KeyCode.E) ? 1.0f : 0.0f;

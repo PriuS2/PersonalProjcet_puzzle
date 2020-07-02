@@ -24,6 +24,7 @@ public class PlayerMovement : MonoBehaviour
     public Transform cameraTransform;
     public PlayerCameraRigMovement cameraRigMovement;
     public OVRInput.Axis2D ovrWalkInput = OVRInput.Axis2D.PrimaryThumbstick;
+    public OVRInput.Button ovrJumpInput = OVRInput.Button.Four;
 
 
     [Header("move")] public float moveSpeed;
@@ -61,14 +62,24 @@ public class PlayerMovement : MonoBehaviour
         var resultMove = Vector3.zero;
         bool cameraPositionUpdate = true;
         transform.eulerAngles = new Vector3(0, cameraTransform.eulerAngles.y, 0);
-        print(new Vector3(0, cameraTransform.eulerAngles.y, 0));
+        // print(new Vector3(0, cameraTransform.eulerAngles.y, 0));
         //_controller.
+        _isHmd = true;
         if (_isHmd)
         {
             var axis = OVRInput.Get(ovrWalkInput, OVRInput.Controller.Touch);
             _inputHorizontal = axis.x;
             _inputVertical = axis.y;
             //print(axis);
+
+            if (OVRInput.GetDown(ovrJumpInput, OVRInput.Controller.Touch))
+            {
+                Jump();
+            }
+            
+            //test
+            if(Input.GetAxis("Horizontal") > 0.1f) _inputHorizontal = Input.GetAxis("Horizontal");
+            if(Input.GetAxis("Vertical") > 0.1f) _inputVertical = Input.GetAxis("Vertical");
 
             _cameraDeltaPosition = transform.position - cameraTransform.position;
             _cameraDeltaPosition = new Vector3(_cameraDeltaPosition.x, 0, _cameraDeltaPosition.z);
@@ -83,7 +94,7 @@ public class PlayerMovement : MonoBehaviour
                 Vector2 camDelta = new Vector2(_cameraDeltaPosition.x, _cameraDeltaPosition.z);
                 var dot = Vector2.Dot(input, camDelta);
                 
-                print(dot);
+//                print(dot);
                 
                 cameraPositionUpdate = false;
                 resultMove += Move(_cameraDeltaPosition.x, _cameraDeltaPosition.z, returnToCameraPower);
@@ -137,13 +148,25 @@ public class PlayerMovement : MonoBehaviour
         _controller.Move(resultMove);
 
 
+        var bottom = GetCapsuleBottom();
         if (_inputHorizontal != 0 & _inputVertical != 0)
         {
             var deltaPos = transform.position - _lastPosition;
-            cameraRigMovement.UpdateCameraPosition(deltaPos, GetCapsuleBottom());
+            cameraRigMovement.UpdateCameraPosition(deltaPos, bottom);
         }
 
         _lastPosition = transform.position;
+
+
+    }
+
+    private void FixedUpdate()
+    {
+        var capsuleHalfHeight = _controller.height * 0.5f;
+        var start = transform.position - (Vector3.up * capsuleHalfHeight);
+        var end = transform.position + (Vector3.up * capsuleHalfHeight);
+        var radius = _controller.radius;
+        DebugExtension.DebugCapsule(start, end, Color.green, radius, .02f, false);
     }
 
 

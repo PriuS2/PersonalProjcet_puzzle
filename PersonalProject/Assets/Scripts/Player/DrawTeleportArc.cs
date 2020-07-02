@@ -35,8 +35,24 @@ namespace Player
 
         private void Update()
         {
+            var last = _draw;
             if (OVRInput.GetDown(teleportButton, OVRInput.Controller.Touch)) _draw = true;
             if (OVRInput.GetUp(teleportButton, OVRInput.Controller.Touch)) _draw = false;
+
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                _draw = !_draw;
+            }
+
+            if (last != _draw)
+            {
+                _lineRenderer.enabled = _draw;
+
+                if (!_draw & _destination != Vector3.zero)
+                {
+                    ExcuteTeleport();
+                }
+            }
             
             
             if (!_draw) return;
@@ -71,6 +87,7 @@ namespace Player
                 }
                 else
                 {
+                    _destination = Vector3.zero;
                     _path.Add(startPos);
                 }
             }
@@ -80,17 +97,22 @@ namespace Player
             
         }
 
-        public void DrawStart()
-        {
-            _draw = true;
-            _lineRenderer.enabled = true;
-        }
+        // public void DrawStart()
+        // {
+        //     _draw = true;
+        //     _lineRenderer.enabled = true;
+        // }
+        //
+        // public Vector3 DrawEnd()
+        // {
+        //     _draw = false;
+        //     _lineRenderer.enabled = false;
+        //     return _destination;
+        //     
+        // }
 
-        public Vector3 DrawEnd()
+        private void ExcuteTeleport()
         {
-            _draw = false;
-            _lineRenderer.enabled = false;
-            return _destination;
             
         }
 
